@@ -1,0 +1,10 @@
+hcloud_token = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+location_list      = ["fsn1", "nbg1", "hel1"]
+instances_minio_lb = "1"
+instances_minio    = "4"
+server_type_minio  = "cx21"
+os_type            = "ubuntu-20.04"
+volumes_per_node   = "6"
+disk_size          = "50"
+public_net         = true
