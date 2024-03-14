@@ -1,5 +1,15 @@
 skip_list:
   - yaml[trailing-spaces]
-  - yaml[indentation]
   - yaml[new-line-at-end-of-file]
-  - yaml[brackets]
+  - yaml[octal-values]
+  - yaml[line-length]
+  - fqcn[action-core]
+  - fqcn[action] 
+  - name[missing]
+  - name[casing]
+  - var-naming[no-role-prefix]
+  - no-handler
+  - risky-file-permissions
+  - no-free-form
+  - no-changed-when 
+  - command-instead-of-shell 

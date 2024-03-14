@@ -1,0 +1,71 @@
+---
+# Install server, client or both
+minio_install_server: true
+minio_install_client: truE
+
+# minio unix user
+minio_group: minio
+minio_user: minio
+
+# minio data directories
+minio_server_make_datadirs: true
+minio_server_datadirs:
+  - /var/lib/minio
+# Minio server cluster node list.
+minio_server_cluster_nodes: []
+
+# minio bin path
+minio_server_bin: /usr/local/bin/minio
+minio_client_bin: /usr/local/bin/mc
+
+# mino server config dirs
+minio_etc_dir: /etc/minio
+minio_cert_dir: "{{ minio_etc_dir }}/ssl"
+minio_policy_dir: "{{ minio_etc_dir }}/policy"
+# mino server env file
+minio_server_envfile: "{{ minio_etc_dir }}/minio.conf"
+
+# Minio server listen address
+minio_server_port: "9091"
+minio_server_addr: ""
+minio_console_port: "9092"
+
+# Minio site region
+minio_site_region: "eu-west-1"
+
+# Additional environment variables to be set in minio server environment
+minio_server_env_extra: ""
+
+# Additional Minio server CLI options
+minio_server_opts: ""
+
+# Minio server url
+minio_url: ""
+
+# Minio credentials user and password
+minio_root_user: ""
+minio_root_password: ""
+
+# TLS
+minio_enable_tls: false
+minio_key: ""
+minio_cert: ""
+
+# Buckets
+minio_buckets: []
+# minio_buckets:
+#  - name: bucket1
+#    policy: private
+
+minio_users: []
+# minio_users:
+#  - name: user1
+#    password: supers1cret0
+
+# Minio client
+minio_validate_certificate: true
+minio_alias: "myminio"
+
+# Prometheus bearer token
+minio_prometheus_bearer_token: false
+prometheus_bearer_token_output: "{{ minio_etc_dir }}/prometheus_bearer.json"

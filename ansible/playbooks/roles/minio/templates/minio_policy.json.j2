@@ -1,0 +1,44 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+{% for acl in user.buckets_acl %}
+{% if acl['name'] and acl['policy'] %}
+{% if acl['policy'] == 'read-write' %}
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:DeleteObject",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:PutObject"
+        ],
+        "Resource": [
+            "arn:aws:s3:::{{ acl['name'] }}",
+            "arn:aws:s3:::{{ acl['name'] }}/*"
+        ]
+    {{ "}," if not loop.last else "}" }}  
+{% endif %}
+{% if acl['policy'] == 'read-only' %}
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:GetObject",
+            "s3:ListBucket"
+        ],
+        "Resource": [
+            "arn:aws:s3:::{{ acl['name'] }}",
+            "arn:aws:s3:::{{ acl['name'] }}/*"
+        ]
+    {{ "}," if not loop.last else "}" }}
+{% endif %}
+{% if acl['policy'] == 'custom' and acl['custom'] %}
+{% for custom in acl.custom %}
+    {
+        {{ custom['rule'] }}
+    {{ "}," if not loop.last else "}" }}    
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+  ]
+}

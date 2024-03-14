@@ -5,4 +5,6 @@ MinIO in a Multi-Node Multi-Drive (MNMD) or “Distributed” configuration. MNM
 MNMD deployments support erasure coding configurations which tolerate the loss of up to half the nodes or drives in the deployment while continuing to serve read operations.
 
 
-![infra](public/01_infra-diagram.png)
+<p align="center">
+  <img src="public/01_infra-diagram.png" width="400" alt="Infrastructure Diagram">
+</p>

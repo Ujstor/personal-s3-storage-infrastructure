@@ -1,0 +1,70 @@
+---
+- name: Minio preconfig
+  import_playbook: minio_config/playbook_minio_preconfig.yml
+
+- name: Install minIO
+  hosts: minio
+  become: true
+  ignore_unreachable: true
+  vars:
+    minio_server_cluster_nodes:
+      [
+        "https://minio{1...4}.ujstor.com:{{ minio_server_port }}/mnt/disk{1...4}/minio",
+      ]
+
+    minio_server_port: "9091"
+    minio_console_port: "9092"
+
+    minio_root_user: "ujstor"
+    minio_root_password: "roottoor123"
+
+    minio_validate_certificate: true
+    minio_alias: "ujstorminio"
+
+  roles:
+    - role: common
+    - role: minio
+
+  tasks:
+    - name: Allow http, UI and S3 API ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - 9091
+        - 9092
+
+    - name: Reboot server1
+      ansible.builtin.shell: "reboot"
+      async: 0
+      poll: 0
+
+    - name: Wait for servers to come back online1
+      ansible.builtin.wait_for_connection:
+        delay: 30
+        timeout: 300
+
+    - name: Change ownershipfor /mnt/disk
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: minio
+        group: minio
+        state: directory
+      with_items:
+        - /mnt/disk1
+        - /mnt/disk2
+        - /mnt/disk3
+        - /mnt/disk4
+
+    - name: Reboot server2
+      ansible.builtin.shell: "reboot"
+      async: 0
+      poll: 0
+
+    - name: Wait for servers to come back online2
+      ansible.builtin.wait_for_connection:
+        delay: 30
+        timeout: 300
+# sudo chown -R minio:minio /mnt/disk{1,2,3,4}

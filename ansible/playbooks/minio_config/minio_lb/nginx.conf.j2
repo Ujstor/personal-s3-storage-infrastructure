@@ -1,0 +1,91 @@
+user nginx;
+worker_processes auto;
+
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+    sendfile on;
+    keepalive_timeout 65;
+
+    upstream minio {
+        {% for server in minio_servers %}
+        server {{ server }}:{{ minio_port }};
+        {% endfor %}
+    }
+
+    upstream console {
+        ip_hash;
+        {% for server in minio_servers %}
+        server {{ server }}:{{ console_port }};
+        {% endfor %}
+    }
+
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name {{ minio_domain }};
+
+        location / {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-NginX-Proxy true;
+
+            # This is necessary to pass the correct IP to be hashed
+            real_ip_header X-Real-IP;
+
+            proxy_connect_timeout 300;
+
+            # To support websocket
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            chunked_transfer_encoding off;
+
+            proxy_pass http://minio;
+        }
+    }
+
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name {{ console_domain }};
+
+        location / {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-NginX-Proxy true;
+
+            # This is necessary to pass the correct IP to be hashed
+            real_ip_header X-Real-IP;
+
+            proxy_connect_timeout 300;
+
+            # To support websocket
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            chunked_transfer_encoding off;
+
+            proxy_pass https://console;
+        }
+    }
+}

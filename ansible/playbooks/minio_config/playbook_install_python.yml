@@ -1,0 +1,18 @@
+- name: Install python and pip
+  hosts: minio
+  become: true
+  tasks:
+    - name: Install Python
+      ansible.builtin.apt:
+        name: python3
+        state: present
+
+    - name: Download get-pip.py script
+      ansible.builtin.get_url:
+        url: https://bootstrap.pypa.io/get-pip.py
+        dest: /tmp/get-pip.py
+
+    - name: Install pip using get-pip.py
+      ansible.builtin.command: python3 /tmp/get-pip.py
+      args:
+        creates: /usr/bin/pip3

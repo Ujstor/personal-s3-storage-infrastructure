@@ -1,0 +1,67 @@
+---
+- name: Configure Nginx as Load Balancer for MinIO cluster
+  hosts: nginx-minio-lb
+  become: true
+  roles:
+    - role: common
+
+  vars:
+    minio_servers:
+      - 10.0.3.2
+      - 10.0.3.3
+      - 10.0.3.4
+      - 10.0.3.5
+    minio_port: 9091
+    console_port: 9092
+    console_domain: minio-console.ujstor.com
+    minio_domain: minio.ujstor.com
+
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.include_role:
+        name: nginx
+
+    - name: Create NGINX configuration directory
+      ansible.builtin.file:
+        path: /etc/nginx/conf.d
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Create nginx group
+      ansible.builtin.group:
+        name: nginx
+        state: present
+
+    - name: Create nginx system user
+      ansible.builtin.user:
+        name: nginx
+        system: true
+        createhome: false
+        shell: /bin/false
+        group: nginx
+        state: present
+
+    - name: Nginx configuration file
+      ansible.builtin.template:
+        src: minio_config/minio_lb/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify: Restart Nginx
+
+    - name: Allow http, UI and S3 API ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - 80
+        - 443
+        - 9091
+        - 9092
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.systemd_service:
+        name: nginx.service
+        state: restarted
+# https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal

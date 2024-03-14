@@ -1,0 +1,33 @@
+---
+
+- name: Ensure PIP is installed.
+  package:
+    name:
+      - python3-pip
+      - python3-setuptools
+    state: present
+
+- name: Install pip packages
+  pip:
+    name:
+      - minio
+    state: present
+    extra_args: --upgrade
+  register: package_install
+  until: package_install is succeeded
+
+- name: "Create Buckets"
+  minio_bucket:
+    s3_url: "{{ minio_url }}"
+    region: "{{ minio_site_region }}"
+    name: "{{ bucket.name }}"
+    access_key: "{{ minio_root_user }}"
+    secret_key: "{{ minio_root_password }}"
+    state: present
+    policy: "{{ omit if bucket.policy == 'private' else bucket.policy }}"
+    validate_certs: false
+  with_items:
+    - "{{ minio_buckets }}"
+  loop_control:
+    loop_var: "bucket"
+    

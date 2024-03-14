@@ -1,0 +1,31 @@
+---
+- name: Set insecure mc command
+  set_fact:
+    mc_command: "mc --insecure"
+  when: not minio_validate_certificate
+
+- name: Set secure mc command
+  set_fact:
+    mc_command: "mc"
+  when: minio_validate_certificate
+
+# - name: Configure minio connection alias
+#   command: "{{ mc_command }} alias set {{ minio_alias }} {{ minio_url }} {{ minio_root_user }} {{ minio_root_password }}"
+#   register: alias_command
+#   changed_when: false
+#   failed_when: '"Added `" + minio_alias + "` successfully" not in alias_command.stdout'
+
+- name: Create Minio Users
+  include_tasks: create_minio_user.yml
+  with_items:
+    - "{{ minio_users }}"
+  loop_control:
+    loop_var: "user"
+
+- name: Create Minio Buckets
+  include_tasks: create_minio_buckets.yml
+
+# Create Prometheus bearer token
+- name: Create Prometheus bearer token
+  include_tasks: create_prometheus_bearer_token.yml
+  when: minio_prometheus_bearer_token

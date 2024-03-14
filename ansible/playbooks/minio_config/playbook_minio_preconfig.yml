@@ -1,0 +1,66 @@
+- name: Cluster config | ssl, dns, rename drives
+  hosts: minio
+  become: true
+  ignore_unreachable: true
+  vars:
+    dns_mappings:
+      - hostname: "minio1.ujstor.com"
+        ip_address: "10.0.3.2"
+      - hostname: "minio2.ujstor.com"
+        ip_address: "10.0.3.3"
+      - hostname: "minio3.ujstor.com"
+        ip_address: "10.0.3.4"
+  tasks:
+    - name: Check if cert directory exists
+      ansible.builtin.stat:
+        path: /etc/minio/ssl/CAs
+      register: dir_check
+
+    - name: Create cert directory
+      ansible.builtin.file:
+        path: /etc/minio/ssl/CAs
+        state: directory
+      when: not dir_check.stat.exists
+
+    - name: Copy openssl crt
+      ansible.builtin.copy:
+        src: ssl/public.crt
+        dest: /etc/minio/ssl
+
+    - name: Copy openssl crt to CAs
+      ansible.builtin.copy:
+        src: ssl/public.crt
+        dest: /etc/minio/ssl/CAs
+
+    - name: Copy openssl key
+      ansible.builtin.copy:
+        src: ssl/private.key
+        dest: /etc/minio/ssl
+
+    - name: Configure DNS mappings
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ item.ip_address }} {{ item.hostname }}"
+        state: present
+      loop: "{{ dns_mappings }}"
+
+    - name: Copy mount volume rename script
+      ansible.builtin.copy:
+        src: scripts/rename_volumes.sh
+        dest: /tmp/rename_volumes.sh
+        mode: +x
+
+    - name: Execute the script
+      ansible.builtin.shell: /tmp/rename_volumes.sh
+
+    - name: Reboot server
+      ansible.builtin.shell: "reboot"
+      async: 0
+      poll: 0
+
+    - name: Wait for servers to come back online
+      ansible.builtin.wait_for_connection:
+        delay: 30
+        timeout: 300
+# curl -LO https://github.com/minio/certgen/releases/download/v1.2.1/certgen-linux-amd64
+# sudo ./certgen-linux-amd64 -host "10.0.3.2, 10.0.3.3, 10.0.3.4, 10.0.3.6, minio1.ujstor.com, minio2.ujstor.com, minio3.ujstor.com, minio4.ujstor.com" && sudo chmod 644 private.key
