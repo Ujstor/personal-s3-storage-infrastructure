@@ -323,11 +323,9 @@ ff02::2 ip6-allrouters
 
 Let's assume that everything is working fine. You now have a login UI. Use the username and password defined in the Minio playbook. Congratulations! Your personal S3-compatible storage is up and running, ready to use.
 
-
-<div style="display: flex; justify-content: center;">
-    <img src="public/05_UI1.png" alt="ui1" style="width: 650px; height: auto; margin: 0 10px;">
-    <img src="public/06_UI2.png" alt="ui2" style="width: 650px; height: auto; margin: 0 10px;">
-</div>
+<p align="center">
+  <img src="public/05_ui.png" width="900" alt="Infrastructure Diagram">
+</p>
 
 ---
 

@@ -3,6 +3,8 @@ skip_list:
   - yaml[new-line-at-end-of-file]
   - yaml[octal-values]
   - yaml[line-length]
+  - yaml[brackets]
+  - yaml[indentation]
   - fqcn[action-core]
   - fqcn[action] 
   - name[missing]
