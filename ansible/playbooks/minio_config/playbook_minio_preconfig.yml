@@ -5,11 +5,13 @@
   vars:
     dns_mappings:
       - hostname: "minio1.ujstor.com"
-        ip_address: "10.0.3.2"
+        ip_address: "10.0.1.2"
       - hostname: "minio2.ujstor.com"
-        ip_address: "10.0.3.3"
+        ip_address: "10.0.1.3"
       - hostname: "minio3.ujstor.com"
-        ip_address: "10.0.3.4"
+        ip_address: "10.0.1.4"
+      - hostname: "minio4.ujstor.com"
+        ip_address: "10.0.1.5"
   tasks:
     - name: Check if cert directory exists
       ansible.builtin.stat:
@@ -62,5 +64,6 @@
       ansible.builtin.wait_for_connection:
         delay: 30
         timeout: 300
+
 # curl -LO https://github.com/minio/certgen/releases/download/v1.2.1/certgen-linux-amd64
-# sudo ./certgen-linux-amd64 -host "10.0.3.2, 10.0.3.3, 10.0.3.4, 10.0.3.6, minio1.ujstor.com, minio2.ujstor.com, minio3.ujstor.com, minio4.ujstor.com" && sudo chmod 644 private.key
+# sudo ./certgen-linux-amd64 -host "10.0.1.2, 10.0.1.3, 10.0.1.4, 10.0.1.5, minio1.ujstor.com, minio2.ujstor.com, minio3.ujstor.com, minio4.ujstor.com" && sudo chmod 644 private.key

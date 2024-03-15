@@ -39,3 +39,6 @@ terraform
 .terraform*
 
 .vscode
+
+/ansible/playbooks/minio_config/ssl/*.crt
+/ansible/playbooks/minio_config/ssl/*.key
